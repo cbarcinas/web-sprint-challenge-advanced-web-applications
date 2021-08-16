@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axiosWithAuth from "../helpers/axiosWithAuth";
+import { useHistory } from "react-router-dom";
 
 const Login = () => {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -7,6 +9,20 @@ const Login = () => {
   // when you have handled the token, navigate to the BubblePage route
 
   //   const error = "";
+
+  const { push } = useHistory();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axiosWithAuth()
+      .post("/login", form)
+      .then((res) => {
+        console.log(res);
+        localStorage.setItem("token", res.data.payload);
+        push("/bubbles");
+      })
+      .catch((err) => setError(err.response.data.error));
+  };
 
   const handleChange = (e) => {
     setForm({
@@ -21,11 +37,12 @@ const Login = () => {
       <div data-testid="loginForm" className="login-form">
         <h2>Login</h2>
         {/* Login Form */}
-        <form>
+        <form onSubmit={handleSubmit}>
           <label>
             Username:
             <input
               type="text"
+              id="username"
               name="username"
               placeholder="Username"
               onChange={handleChange}
@@ -37,6 +54,7 @@ const Login = () => {
             Password:
             <input
               type="password"
+              id="password"
               name="password"
               placeholder="password"
               onChange={handleChange}
